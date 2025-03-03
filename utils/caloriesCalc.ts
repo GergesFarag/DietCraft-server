@@ -19,7 +19,7 @@ export const calculateCalories = (
   const activityMultiplier: any = {
     low: 1.2,
     medium: 1.45,
-    high: 1.8,
+    high: 1.7,
   };
   let cal = bmr * activityMultiplier[activityLevel];
   if (goal === goals.gainWeight) cal += 500;
