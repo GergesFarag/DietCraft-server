@@ -1,0 +1,25 @@
+import express from "express";
+import cors from "cors"
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import compression from "compression";
+import { router as userRouter } from "./routes/user.router";
+import ErrorsHandler  from "./utils/error.handler";
+export const app = express();
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(cors());
+app.use(cookieParser());
+app.use(helmet());
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100,
+    message: "Too many requests from this IP, please try again later."
+}));
+app.use(compression());
+app.use(morgan(process.env.MODE === "development" ? "dev" : "combined"));
+app.use("/user", userRouter);
+app.use(ErrorsHandler.errorHandle);
+app.use("*",ErrorsHandler.notFound);

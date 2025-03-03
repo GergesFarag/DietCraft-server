@@ -1,0 +1,49 @@
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcrypt";
+import { UserInfoSchema } from "./userInfo.schema";
+
+export interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
+  isAdmin: boolean;
+  isActive: boolean;
+  refreshToken: string;
+  userData: typeof UserInfoSchema;
+}
+
+const userShcema = new mongoose.Schema<IUser>(
+  {
+    username: { type: String, required: [true, "username is required"] },
+    email: {
+      type: String,
+      unique: true,
+      required: [true, "email is required"],
+      validate: [validator.isEmail, "Please enter a valid email"],
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: [6, "Minimum password length is 6 characters"],
+      select: false,
+    },
+    isAdmin: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+    refreshToken: { type: String, required: false },
+    userData: { type: UserInfoSchema, required: false },
+  },
+  { timestamps: true }
+);
+userShcema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+userShcema.methods.comparePasswords = async function (password: string) {
+  return await bcrypt.compare(password, this.password);
+};
+export const User = mongoose.model<IUser>("user", userShcema);
