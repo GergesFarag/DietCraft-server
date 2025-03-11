@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 import dotenv from "dotenv"; 
 import { router as userRouter } from "./routes/user.router";
+import {router as nutirentsRouter} from "./routes/nutients.router";
 import ErrorsHandler  from "./utils/error.handler";
 export const app = express();
 dotenv.config();
@@ -23,5 +24,6 @@ app.use(rateLimit({
 app.use(compression());
 app.use(morgan(process.env.MODE as string === "development" ? "dev" : "combined"));
 app.use("/user", userRouter);
+app.use("/nutrients", nutirentsRouter)
 app.use(ErrorsHandler.errorHandle);
 app.use("*",ErrorsHandler.notFound);

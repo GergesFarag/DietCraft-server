@@ -147,6 +147,14 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "GetUsers",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
 						}
 					]
 				},
@@ -198,7 +206,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzU2MjM1YzI5MWY4NzVkN2QzMDhkOSIsImlhdCI6MTc0MDk5NDg1NSwiZXhwIjoxNzQwOTk2MzU1fQ.lfWsdKdPzTvDBsgUCQ2Sc8aaehH-JzQgw-N0hsMqvaE",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzU2MjM1YzI5MWY4NzVkN2QzMDhkOSIsImlhdCI6MTc0MTIwNDg1MCwiZXhwIjoxNzQxMjA2MzUwfQ.gUQwMRXxJTtgZrxFz9SGBOqzHbiz-h8YO6-qbAxxsL8",
 											"type": "string"
 										}
 									]
@@ -207,7 +215,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"activityLevel\": \"high\"\r\n}",
+									"raw": "{\r\n    \"goal\" : 0\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -222,6 +230,56 @@
 									"path": [
 										"user",
 										"info"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "nutrients",
+					"item": [
+						{
+							"name": "Get_nut_inside_item",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDA1MTdmMTRhMTJhOGRlZDJjMTljYSIsImlhdCI6MTc0MTczMzc5MiwiZXhwIjoxNzQxNzM1MjkyfQ.4shLOjNxIt_lik_2eISF9eVGXuCQZ6alpjMicw_yBSk",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base}}/nutrients?item=chicken",
+									"host": [
+										"{{base}}"
+									],
+									"path": [
+										"nutrients"
+									],
+									"query": [
+										{
+											"key": "item",
+											"value": "chicken"
+										}
 									]
 								}
 							},

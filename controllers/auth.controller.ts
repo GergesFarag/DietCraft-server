@@ -6,14 +6,12 @@ export const generateTokens = (data: any, isJWT: boolean) => {
   let token = "";
   if (isJWT) {
     token = jwt.sign(
-        //@ts-ignore
         { id: data.id, role: data.isAdmin },
         process.env.JWT_SECRET as string,
-        { expiresIn: "25m" }
+        { expiresIn: "30m" }
     );
 } else {
     token = jwt.sign(
-      //@ts-ignore
       { id: data.id, role: data.isAdmin },
       process.env.REFRESH_SECRET as string,
       { expiresIn: "7d" }
@@ -44,7 +42,6 @@ export const updateAccessToken = catchError(
         const newAccessToken = generateTokens(decoded, true);
         res.status(200).json({
           message: "New Access Token Generated Successfully !",
-          //@ts-ignore
           data: { accessToken: newAccessToken, role: user.isAdmin },
         });
       }
