@@ -20,12 +20,22 @@ const userShcema = new mongoose.Schema<IUser>(
       type: String,
       unique: true,
       required: [true, "email is required"],
-      validate: [validator.isEmail, "Please enter a valid email"],
+      validate: {
+        validator: function(value:string){
+          return this.isAdmin ? true : validator.isEmail(value);
+        },
+        message: "Please enter a valid email"
+      }
     },
     password: {
       type: String,
       required: true,
-      minlength: [6, "Minimum password length is 6 characters"],
+      validate :{
+        validator: function(value:string){
+          return this.isAdmin ? true : value.length >= 8;
+        },
+        message: "Password must be at least 8 characters"
+      },
       select: false,
     },
     isAdmin: { type: Boolean, default: false },

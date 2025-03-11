@@ -5,6 +5,8 @@ import { generateTokens, updateAccessToken } from "./auth.controller";
 import { calculateCalories } from "../utils/caloriesCalc";
 import { goals } from "../models/userInfo.schema";
 import { ObjectId } from "mongoose";
+import { CustomError } from "../utils/error.handler";
+import { HttpStatus } from "../utils/HttpStatus";
 const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: (process.env.MODE as string) === "production",
@@ -15,8 +17,13 @@ const register = catchError(
     const { email, password } = req.body;
     const isExist = await User.findOne({ email });
     if (isExist && isExist.isActive) {
-      res.status(400).json({ message: "Cannot Use This Email" });
-      return;
+      return next(
+        new CustomError(
+          "Cannot Use This Email",
+          "Email is Invalid",
+          HttpStatus.UNAUTHORIZED
+        )
+      );
     }
     const newUser = new User({ ...req.body });
     const refreshToken = generateTokens(newUser, false);
@@ -26,7 +33,6 @@ const register = catchError(
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(201).json({
       message: "User Created Successfully !",
-      //@ts-ignore
       data: { accessToken: accessToken, user: newUser },
     });
   }
@@ -75,15 +81,21 @@ const logout = catchError(
 );
 const deleteUser = catchError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await User.findByIdAndUpdate(
-      //@ts-ignore
-      { id: req.params.id },
-      { isActive: false }
-    );
+    const user = await User.findById(req.params.id);
+    if (user?.isAdmin) {
+      return next(
+        new CustomError(
+          "Forbidden",
+          "Cannot Delete Admin",
+          HttpStatus.FORBIDDEN
+        )
+      );
+    }
     if (!user) {
       res.status(400).json({ message: "Invalid User" });
       return;
     }
+    user.isActive = false;
     await user.save();
     res.status(200).json({ message: "User Deleted Successfully !" });
   }
@@ -105,7 +117,7 @@ const addUserInfo = catchError(
       next(new Error("Invalid Data Provided"));
     }
     let calories = Math.round(
-      calculateCalories(age, weight, height, gender, activityLevel , goal)
+      calculateCalories(age, weight, height, gender, activityLevel, goal)
     );
     const user = await User.findByIdAndUpdate(
       //@ts-ignore
@@ -137,18 +149,19 @@ const updateUserInfo = catchError(
         user.userData[field] = updatingFields[field];
       });
       //@ts-ignore
-      const { age, weight, height, gender, activityLevel , goal } = user.userData;
+      const { age, weight, height, gender, activityLevel, goal } =
+        user.userData;
       let calories = Math.round(
-        calculateCalories(age, weight, height, gender, activityLevel , goal)
+        calculateCalories(age, weight, height, gender, activityLevel, goal)
       );
       //@ts-ignore
       user.userData.calories = calories;
       await user.save();
-        res.status(200).json({
-          message: "User Info Updated Successfully",
-          data: user.userData,
-        });
-      }
+      res.status(200).json({
+        message: "User Info Updated Successfully",
+        data: user.userData,
+      });
+    }
   }
 );
 export const userController = {
