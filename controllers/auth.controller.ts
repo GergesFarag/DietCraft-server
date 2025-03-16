@@ -4,13 +4,13 @@ import { catchError } from "../utils/catchError";
 import { User } from "../models/Iuser.model";
 export const generateTokens = (data: any, isJWT: boolean) => {
   let token = "";
-  if (isJWT) {
+  if (isJWT) { 
     token = jwt.sign(
         { id: data.id, role: data.isAdmin },
         process.env.JWT_SECRET as string,
         { expiresIn: "30m" }
     );
-} else {
+} else { 
     token = jwt.sign(
       { id: data.id, role: data.isAdmin },
       process.env.REFRESH_SECRET as string,

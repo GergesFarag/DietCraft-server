@@ -58,7 +58,6 @@ const login = catchError(
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(200).json({
       message: "User Logged In Successfully !",
-      //@ts-ignore
       data: { accessToken: accessToken, user: user },
     });
   }
@@ -112,29 +111,39 @@ const getAllUsers = catchError(
 );
 const addUserInfo = catchError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { age, weight, height, gender, activityLevel, goal = 1 } = req.body;
-    if (!age || !weight || !height || !gender || !activityLevel) {
-      next(new Error("Invalid Data Provided"));
-    }
-    let calories = Math.round(
-      calculateCalories(age, weight, height, gender, activityLevel, goal)
-    );
-    const user = await User.findByIdAndUpdate(
-      //@ts-ignore
-      { _id: req.data.id as ObjectId },
-      { userData: { age, weight, height, gender, activityLevel, goal } }
-    );
-    if (!user) {
-      next(new Error("Invalid User"));
-      return;
-    }
-    //@ts-ignore
-    user.userData.calories = calories;
-    await user.save();
-    res
-      .status(200)
-      .json({ message: "User Info Added Successfully", data: user.userData });
-  }
+      const { age, weight, height, gender, activityLevel, goal = 1 } = req.body;
+      if (!age || !weight || !height || !gender || !activityLevel) {
+        return next(new Error("Invalid Data Provided"));
+      }
+      let calories = Math.round(
+        calculateCalories(age, weight, height, gender, activityLevel, goal)
+      );
+
+      const user = await User.findByIdAndUpdate(
+        //@ts-ignore
+        req.data.id,
+        {
+          $set: {
+            "userData.age": age,
+            "userData.weight": weight,
+            "userData.height": height,
+            "userData.gender": gender,
+            "userData.activityLevel": activityLevel,
+            "userData.goal": goal,
+            "userData.calories": calories,
+          },
+        },
+        { new: true, runValidators: true }
+      );
+  
+      if (!user) {
+        return next(new Error("Invalid User"));
+      }
+      res.status(200).json({
+        message: "User Info Added Successfully",
+        data: user.userData,
+      });
+  }  
 );
 const updateUserInfo = catchError(
   async (req: Request, res: Response, next: NextFunction) => {
